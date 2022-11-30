@@ -47,12 +47,12 @@ public class BookDetailActivity extends AppCompatActivity {
 
         TextView subTitle = findViewById(R.id.sub_title_book_detail);
         subTitle.setSelected(true);
-        subTitle.setText(model.getSubTitle());
+        subTitle.setText(model.getSubtitle());
 
         PDFView pdfView = findViewById(R.id.pdfView);
 
-        int start = model.getStartPage();
-        int end = model.getEndPage();
+        int start = model.getPageStart();
+        int end = model.getPageEnd();
 
         List<Integer> list = new ArrayList<>();
 

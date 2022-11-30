@@ -4,30 +4,30 @@ import java.io.Serializable;
 
 public class Model implements Serializable {
     private final String title;
-    private final int endPage;
-    private final int startPage;
-    private final String subTitle;
+    private final String subtitle;
+    private final int pageStart;
+    private final int pageEnd;
 
-    public Model(String title, String subTitle, int endPage, int startPage) {
+    public Model(String title, String subtitle, int start, int end) {
         this.title = title;
-        this.endPage = endPage;
-        this.startPage = startPage;
-        this.subTitle = subTitle;
+        this.subtitle = subtitle;
+        this.pageStart = start;
+        this.pageEnd = end;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public String getSubTitle() {
-        return subTitle;
+    public String getSubtitle() {
+        return subtitle;
     }
 
-    public int getEndPage() {
-        return endPage;
+    public int getPageStart() {
+        return pageStart;
     }
 
-    public int getStartPage() {
-        return startPage;
+    public int getPageEnd() {
+        return pageEnd;
     }
 }
