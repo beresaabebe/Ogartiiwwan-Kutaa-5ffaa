@@ -1,6 +1,6 @@
 package com.beckytech.og_artiiwwankutaa5ffaa.contents;
 
-public class SliderUrl {
+public class MoreAppUrl {
     public String[] url = {
             "https://play.google.com/store/apps/details?id=com.beckytech.Kitaabaherregakutaa8ffaa",
             "https://play.google.com/store/apps/details?id=com.beckytech.informationtechnologygrade8",

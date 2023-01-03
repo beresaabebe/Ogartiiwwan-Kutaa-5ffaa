@@ -2,7 +2,7 @@ package com.beckytech.og_artiiwwankutaa5ffaa.contents;
 
 import com.beckytech.og_artiiwwankutaa5ffaa.R;
 
-public class SliderImages {
+public class MoreAppImages {
     public int[] images = {
             R.drawable.her8,
             R.drawable.its8,
@@ -24,8 +24,8 @@ public class SliderImages {
             R.drawable.og7,
 
             R.drawable.gad8,
-            R.drawable.gad6,
             R.drawable.gad7,
+            R.drawable.gad6,
             R.drawable.gad8,
 
             R.drawable.her5,
