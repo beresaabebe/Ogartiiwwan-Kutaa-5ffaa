@@ -34,6 +34,18 @@ public class MoreAppImages {
             R.drawable.ao5,
             R.drawable.og5,
             R.drawable.am5,
-            R.drawable.eng5
+            R.drawable.eng5,
+
+            R.drawable.walaloo,
+            R.drawable.lfo_icon,
+            R.drawable.extr11,
+            R.drawable.extr11,
+            R.drawable.ao10,
+            R.drawable.ao111,
+            R.drawable.ao12,
+            R.drawable.ao99,
+            R.drawable.ao6,
+            R.drawable.bio9,
+            R.drawable.cit10
     };
 }
