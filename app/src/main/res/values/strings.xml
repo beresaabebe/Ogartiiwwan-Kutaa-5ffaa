@@ -18,6 +18,7 @@
     <string name="kitaaba_kutaa_7ffaa">Kitaaba Kutaa 7ffaa</string>
     <string name="kitaaba_gadaa">Kitaaba Gadaa</string>
     <string name="kitaaba_kutaa_5ffaa">Kitaaba Kutaa 5ffaa</string>
-    <string name="download">Download Now</string>
+    <string name="download">Download</string>
     <string name="privacy_title">Privacy</string>
+    <string name="download_now">Download Now</string>
 </resources>

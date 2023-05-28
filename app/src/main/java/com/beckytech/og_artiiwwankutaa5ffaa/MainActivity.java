@@ -36,6 +36,7 @@ import com.beckytech.og_artiiwwankutaa5ffaa.model.Model;
 import com.beckytech.og_artiiwwankutaa5ffaa.model.MoreAppsModel;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
+import com.facebook.ads.AdListener;
 import com.facebook.ads.AdSize;
 import com.facebook.ads.AdView;
 import com.facebook.ads.InterstitialAd;
@@ -49,7 +50,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements Adapter.OnItemClickedListener, MoreAppsAdapter.MoreAppsClicked {
     private InterstitialAd interstitialAd;
     private DrawerLayout drawerLayout;
-    private List<Model> modelList;
+    private List<Object> modelList;
     private final TitleContents titleContents = new TitleContents();
     private final SubTitleContents subTitleContents = new SubTitleContents();
     private final ContentStartPage startPage = new ContentStartPage();
@@ -58,9 +59,12 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnItemCli
     private final MoreAppImages images = new MoreAppImages();
     private final MoreAppUrl url = new MoreAppUrl();
     private final MoreAppsName appsName = new MoreAppsName();
-    private List<MoreAppsModel> moreAppsModelList;
+    private List<Object> moreAppsModelList;
 
-    private String TAG = MainActivity.class.getSimpleName();
+    public static int ADS_PER_ITEM = 3;
+
+    private final String TAG = MainActivity.class.getSimpleName();
+    private AdView adView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,11 +93,13 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnItemCli
         getData();
         Adapter adapter = new Adapter(modelList, this);
         recyclerView.setAdapter(adapter);
+        addBanner(modelList);
 
         RecyclerView moreAppsRecyclerView = findViewById(R.id.moreAppsRecycler);
         getMoreApps();
         MoreAppsAdapter moreAppsAdapter = new MoreAppsAdapter(moreAppsModelList, this);
         moreAppsRecyclerView.setAdapter(moreAppsAdapter);
+        addBanner(moreAppsModelList);
     }
 
     private void getMoreApps() {
@@ -112,6 +118,53 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnItemCli
                     startPage.pageStart[j],
                     endPage.pageEnd[j]));
         }
+    }
+
+    private void addBanner(List<Object> list) {
+        int j = 0;
+        for (int i = ADS_PER_ITEM; i <= list.size(); i += ADS_PER_ITEM) {
+            if (j % 3 == 0)
+                // Banner
+                adView = new AdView(this, "269798475392144_269799888725336", AdSize.BANNER_HEIGHT_50);
+            else
+                adView = new AdView(MainActivity.this, "269798475392144_282211424150849", AdSize.RECTANGLE_HEIGHT_250); // Rectangle
+            list.add(i, adView);
+            j++;
+        }
+        loadBanner(list);
+    }
+
+    private void loadBanner(List<Object> list) {
+        loadBanner(ADS_PER_ITEM, list);
+    }
+
+    private void loadBanner(int adsPerItem, List<Object> list) {
+        if (adsPerItem >= list.size()) {
+            return;
+        }
+        Object items = list.get(adsPerItem);
+        adView = (AdView) items;
+        AdListener adListener = new AdListener() {
+            @Override
+            public void onError(Ad ad, AdError adError) {
+//                Toast.makeText(MainActivity.this,"Error: " + adError.getErrorMessage(), Toast.LENGTH_LONG).show();
+                loadBanner(adsPerItem + ADS_PER_ITEM, list);
+            }
+
+            @Override
+            public void onAdLoaded(Ad ad) {
+                loadBanner(adsPerItem + ADS_PER_ITEM, list);
+            }
+
+            @Override
+            public void onAdClicked(Ad ad) {
+            }
+
+            @Override
+            public void onLoggingImpression(Ad ad) {
+            }
+        };
+        adView.loadAd(adView.buildLoadAdConfig().withAdListener(adListener).build());
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -167,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnItemCli
                     .show();
         }
     }
+
     private void callAds() {
 //        513372960928869_513374324262066
         AdView adView = new AdView(this, "269798475392144_269799888725336", AdSize.BANNER_HEIGHT_50);
@@ -223,6 +277,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnItemCli
                         .withAdListener(interstitialAdListener)
                         .build());
     }
+
     private void showAdWithDelay() {
         Handler handler = new Handler();
         handler.postDelayed(() -> {
@@ -238,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnItemCli
             interstitialAd.show();
         }, 1000 * 60 * 2); // Show the ad after 15 minutes
     }
+
     @Override
     public void onBackPressed() {
         showAdWithDelay();

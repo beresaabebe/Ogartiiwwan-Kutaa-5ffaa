@@ -23,15 +23,4 @@ public class MoreAppsModel {
         return images;
     }
 
-    public void setAppName(String appName) {
-        this.appName = appName;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public void setImages(int images) {
-        this.images = images;
-    }
 }
