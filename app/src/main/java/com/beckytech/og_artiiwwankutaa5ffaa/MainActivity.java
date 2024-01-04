@@ -1,12 +1,12 @@
 package com.beckytech.og_artiiwwankutaa5ffaa;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -48,22 +47,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements Adapter.OnItemClickedListener, MoreAppsAdapter.MoreAppsClicked {
-    private InterstitialAd interstitialAd;
-    private DrawerLayout drawerLayout;
-    private List<Object> modelList;
-    private final TitleContents titleContents = new TitleContents();
-    private final SubTitleContents subTitleContents = new SubTitleContents();
-    private final ContentStartPage startPage = new ContentStartPage();
-    private final ContentEndPage endPage = new ContentEndPage();
-
+    public static int ADS_PER_ITEM = 3;
     private final MoreAppImages images = new MoreAppImages();
     private final MoreAppUrl url = new MoreAppUrl();
     private final MoreAppsName appsName = new MoreAppsName();
-    private List<Object> moreAppsModelList;
-
-    public static int ADS_PER_ITEM = 3;
-
     private final String TAG = MainActivity.class.getSimpleName();
+    private InterstitialAd interstitialAd;
+    private DrawerLayout drawerLayout;
+    private List<Object> modelList;
+    private List<Object> moreAppsModelList;
     private AdView adView;
 
     @Override
@@ -111,12 +103,12 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnItemCli
 
     private void getData() {
         modelList = new ArrayList<>();
-        for (int j = 0; j < titleContents.title.length; j++) {
-            modelList.add(new Model(titleContents.title[j].substring(0, 1).toUpperCase() + "" +
-                    titleContents.title[j].substring(1).toLowerCase(),
-                    subTitleContents.subTitle[j],
-                    startPage.pageStart[j],
-                    endPage.pageEnd[j]));
+        for (int j = 0; j < TitleContents.title.length; j++) {
+            modelList.add(new Model(TitleContents.title[j].substring(0, 1).toUpperCase() +
+                    TitleContents.title[j].substring(1).toLowerCase(),
+                    SubTitleContents.subTitle[j],
+                    ContentStartPage.pageStart[j],
+                    ContentEndPage.pageEnd[j]));
         }
     }
 
@@ -169,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnItemCli
 
     @SuppressLint("UseCompatLoadingForDrawables")
     void MenuOptions(MenuItem item) {
+        drawerLayout.closeDrawer(GravityCompat.START);
         if (item.getItemId() == R.id.action_privacy) {
             startActivity(new Intent(this, PrivacyActivity.class));
         }
@@ -197,9 +190,9 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnItemCli
         }
 
         if (item.getItemId() == R.id.action_update) {
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-            int lastVersion = pref.getInt("lastVersion", 0);
-            String url = "https://play.google.com/store/apps/details?id=" + getPackageName();
+            SharedPreferences pref = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE);
+            int lastVersion = pref.getInt("lastVersion", BuildConfig.VERSION_CODE);
+            String url = "https://play.goSTogle.com/store/apps/details?id=" + getPackageName();
             if (lastVersion < BuildConfig.VERSION_CODE) {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                 Toast.makeText(this, "New update is available download it from play store!", Toast.LENGTH_SHORT).show();
@@ -222,7 +215,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnItemCli
     }
 
     private void callAds() {
-//        513372960928869_513374324262066
         AdView adView = new AdView(this, "269798475392144_269799888725336", AdSize.BANNER_HEIGHT_50);
         LinearLayout adContainer = findViewById(R.id.banner_container);
         adContainer.addView(adView);
@@ -292,25 +284,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnItemCli
             // Show the ad
             interstitialAd.show();
         }, 1000 * 60 * 2); // Show the ad after 15 minutes
-    }
-
-    @Override
-    public void onBackPressed() {
-        showAdWithDelay();
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-            builder.setTitle("Close")
-                    .setMessage("Do you want to close?")
-                    .setBackground(AppCompatResources.getDrawable(this, R.drawable.nav_header_bg))
-                    .setPositiveButton("Close", (dialog, which) -> {
-                        System.exit(0);
-                        finish();
-                    })
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
-                    .show();
-        }
     }
 
     @Override

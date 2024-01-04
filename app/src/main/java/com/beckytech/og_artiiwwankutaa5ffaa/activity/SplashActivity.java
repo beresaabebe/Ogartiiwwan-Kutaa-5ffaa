@@ -2,9 +2,12 @@ package com.beckytech.og_artiiwwankutaa5ffaa.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -20,9 +23,20 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        new Handler().postDelayed(() -> {
-            startActivity(new Intent(SplashActivity.this, MainActivity.class));
-            finish();
-        }, 1500);
+        ImageView splashscreen = findViewById(R.id.splashscreen);
+        splashscreen.setVisibility(View.VISIBLE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            splashscreen.getViewTreeObserver().addOnDrawListener(() -> {
+                splashscreen.setVisibility(View.GONE);
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                finish();
+            });
+        } else {
+            new Handler().postDelayed(() -> {
+                splashscreen.setVisibility(View.VISIBLE);
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                finish();
+            }, 1500);
+        }
     }
 }

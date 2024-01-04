@@ -21,4 +21,7 @@
     <string name="download">Download</string>
     <string name="privacy_title">Privacy</string>
     <string name="download_now">Download Now</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+    <string name="contact_us">Contact us</string>
 </resources>

@@ -1,7 +1,7 @@
 package com.beckytech.og_artiiwwankutaa5ffaa.contents;
 
 public class ContentStartPage {
-    public int[] pageStart = {
+    public static int[] pageStart = {
             5,
             63,
             87,
