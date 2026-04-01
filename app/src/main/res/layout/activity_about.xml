@@ -1,149 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:ads="http://schemas.android.com/apk/res-auto"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_weight="100"
-    android:background="@color/white"
-    android:orientation="vertical">
+    android:background="@color/white">
 
-    <RelativeLayout
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/nav_header_bg">
-
-        <ImageButton
-            android:id="@+id/ib_back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/app_name"
-            android:padding="10dp"
-            android:src="@drawable/ic_baseline_arrow_back_24" />
-
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="40dp"
-            android:layout_toEndOf="@id/ib_back"
-            android:ellipsize="marquee"
-            android:fontFamily="serif"
-            android:singleLine="true"
-            android:text="@string/app_name"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-    </RelativeLayout>
-
-    <ScrollView
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar"
-        android:background="@color/white">
+        android:background="@drawable/nav_header_bg">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:contentInsetStartWithNavigation="0dp">
+
+            <ImageButton
+                android:id="@+id/ib_back"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/ic_baseline_arrow_back_24"
+                app:tint="@color/white" />
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:fontFamily="sans-serif-medium"
+                android:singleLine="true"
+                android:text="@string/app_name"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <androidx.cardview.widget.CardView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                ads:cardElevation="5dp"
-                ads:cardMaxElevation="10dp"
-                ads:cardCornerRadius="100dp"
-                android:layout_gravity="center_horizontal">
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="60dp"
+                app:cardElevation="6dp"
+                app:strokeColor="#EEEEEE"
+                app:strokeWidth="2dp">
 
                 <ImageView
                     android:id="@+id/imageView"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_gravity="center_horizontal"
-                    android:contentDescription="@string/app_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/app_icon"
                     android:scaleType="centerCrop"
                     android:src="@drawable/icon" />
 
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <WebView
                 android:id="@+id/webView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
-                android:padding="10dp" />
+                android:layout_marginBottom="24dp"
+                tools:ignore="WebViewLayout" />
 
-            <LinearLayout
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:fontFamily="sans-serif-black"
+                android:text="@string/contact_us"
+                android:textAllCaps="true"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:letterSpacing="0.1"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="8dp" />
 
-                <TextView
-                    style="@style/TextAppearance.MaterialComponents.Headline3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:textColor="@color/black"
-                    android:text="@string/contact_us"
-                    android:textSize="18sp" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_about"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
-                    app:spanCount="2"
-                    tools:listitem="@layout/about_list_item" />
-
-            </LinearLayout>
-
-            <RelativeLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_about"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="1"
+                tools:listitem="@layout/about_list_item" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:alpha="0.6"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/v"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:fontFamily="serif"
-                    android:padding="10dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
                     android:text="@string/version"
-                    android:textSize="16sp" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/version_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:fontFamily="serif"
-                    android:textSize="16sp"
-                    android:layout_toEndOf="@+id/v"
-                    android:padding="10dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="@string/app_name" />
-
-            </RelativeLayout>
+                    android:layout_marginStart="4dp"
+                    android:text=""
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/banner_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"/>
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:orientation="vertical" />
 
         </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-    </ScrollView>
-
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

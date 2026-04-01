@@ -12,8 +12,6 @@
     <string name="facebook">Facebook</string>
     <string name="phone">Phone</string>
     <string name="version">Version - </string>
-    <string name="banner_ad_unit_id">ca-app-pub-8504401574247581/8662868393</string>
-    <string name="test_interstitial_ads_unit_id">ca-app-pub-8504401574247581/7126920280</string>
     <string name="download_more_apps">Download more apps</string>
     <string name="kitaaba_kutaa_7ffaa">Kitaaba Kutaa 7ffaa</string>
     <string name="kitaaba_gadaa">Kitaaba Gadaa</string>
@@ -24,4 +22,22 @@
     <string name="previous">Previous</string>
     <string name="next">Next</string>
     <string name="contact_us">Contact us</string>
+    
+    <string name="fb_interstitial_ads_about_us">269798475392144_269800995391892</string>
+    <string name="fb_banner_ads_about_us">269798475392144_269800828725242</string>
+
+    <string name="fb_interstitial_ads_detail">269798475392144_269805372058121</string>
+    <string name="fb_banner_ads_detail">269798475392144_269805225391469</string>
+
+    <string name="fb_banner_ads_privacy">269798475392144_269799888725336</string>
+    <string name="fb_banner_ads_main">269798475392144_269799888725336</string>
+    <string name="fb_interstitial_ads_main">269798475392144_269800088725316</string>
+    <string name="follow_us_on_facebook">Follow us on Facebook</string>
+    <string name="app_icon">App icon</string>
+    <string name="subtitle_section">Subtitle/Section</string>
+    <string name="chapter_title">Chapter Title</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="arrow_to_right">Arrow to right</string>
+    <string name="support_amp_community"><![CDATA[Support & Community]]></string>
+
 </resources>

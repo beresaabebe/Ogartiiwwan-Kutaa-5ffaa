@@ -5,28 +5,47 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
         <item name="overlapAnchor">false</item>
         <item name="android:dropDownVerticalOffset">?attr/actionBarSize</item>
-        <item name="android:itemBackground">@drawable/nav_header_bg</item>
+
         <item name="android:textColor">@color/black</item>
+
+        <item name="android:listSeparatorTextViewStyle">@style/NavSeparatorText</item>
     </style>
 
-    <style name="MyToolBar" parent="ThemeOverlay.AppCompat.Light">
-        <item name="android:textColorSecondary">@color/black</item>
-        <item name="android:colorBackground">@color/white</item>
-        <item name="popupMenuStyle">@style/ThemeOverlay.AppCompat.Light</item>
+    <style name="NavSeparatorText" parent="Widget.AppCompat.TextView.SpinnerItem">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">8dp</item>
     </style>
 
-    <style name="SplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
-        <item name="android:windowTranslucentNavigation">false</item>
+    <style name="MyToolBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/white</item>
+        <item name="actionMenuTextColor">@color/white</item>
+    </style>
+
+    <style name="SplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
     </style>
 
     <style name="MyAlertDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
         <item name="android:textColor">@color/colorPrimaryDark</item>
         <item name="android:textColorPrimary">@color/black</item>
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="CircleImage">
+        <item name="cornerSize">50%</item>
     </style>
 
 </resources>

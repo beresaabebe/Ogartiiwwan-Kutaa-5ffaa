@@ -1,44 +1,43 @@
 package com.beckytech.og_artiiwwankutaa5ffaa;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class AppRate {
-    private final static String APP_TITLE = "Og-artiiwwan Kutaa 5ffaa";// App Name
-    private static final String APP_PNAME = "com.beckytech.og_artiiwwankutaa5ffaa";// Package Name
+    // Pro-Tip: Use BuildConfig.APPLICATION_ID so you don't have to manually
+    // change the package name for all 50 apps!
+    private static final String APP_PNAME = BuildConfig.APPLICATION_ID;
 
-    private final static int DAYS_UNTIL_PROMPT = 3;//Min number of days
-    private final static int LAUNCHES_UNTIL_PROMPT = 3;//Min number of launches
+    private final static int DAYS_UNTIL_PROMPT = 3;
+    private final static int LAUNCHES_UNTIL_PROMPT = 3;
 
     public static void app_launched(Context mContext) {
-        SharedPreferences prefs = mContext.getSharedPreferences("apprater", 0);
-        if (prefs.getBoolean("dontshowagain", false)) {
+        SharedPreferences prefs = mContext.getSharedPreferences("app_rater_prefs", Context.MODE_PRIVATE);
+        if (prefs.getBoolean("dont_show_again", false)) {
             return;
         }
 
         SharedPreferences.Editor editor = prefs.edit();
 
         // Increment launch counter
-        long launch_count = prefs.getLong("launch_count", 0) + 1;
-        editor.putLong("launch_count", launch_count);
+        long launchCount = prefs.getLong("launch_count", 0) + 1;
+        editor.putLong("launch_count", launchCount);
 
         // Get date of first launch
-        long date_firstLaunch = prefs.getLong("date_firstlaunch", 0);
-        if (date_firstLaunch == 0) {
-            date_firstLaunch = System.currentTimeMillis();
-            editor.putLong("date_firstlaunch", date_firstLaunch);
+        long dateFirstLaunch = prefs.getLong("date_first_launch", 0);
+        if (dateFirstLaunch == 0) {
+            dateFirstLaunch = System.currentTimeMillis();
+            editor.putLong("date_first_launch", dateFirstLaunch);
         }
 
-        // Wait at least n days before opening
-        if (launch_count >= LAUNCHES_UNTIL_PROMPT) {
-            if (System.currentTimeMillis() >= date_firstLaunch +
-                    (DAYS_UNTIL_PROMPT * 24 * 60 * 60 * 1000)) {
+        // Logic check for showing the prompt
+        if (launchCount >= LAUNCHES_UNTIL_PROMPT) {
+            if (System.currentTimeMillis() >= dateFirstLaunch +
+                    (long) DAYS_UNTIL_PROMPT * 24 * 60 * 60 * 1000) {
                 showRateDialog(mContext, editor);
             }
         }
@@ -46,46 +45,31 @@ public class AppRate {
         editor.apply();
     }
 
-    public static void showRateDialog(final Context mContext, final SharedPreferences.Editor editor) {
-        final Dialog dialog = new Dialog(mContext);
-        dialog.setTitle("Rate " + APP_TITLE);
+    private static void showRateDialog(final Context mContext, final SharedPreferences.Editor editor) {
+        String appName = mContext.getString(R.string.app_name);
 
-        LinearLayout ll = new LinearLayout(mContext);
-        ll.setOrientation(LinearLayout.VERTICAL);
-
-        TextView tv = new TextView(mContext);
-        tv.setText(String.format("If you enjoy using %s, please take a moment to rate it. Thanks for your support!", APP_TITLE));
-        tv.setWidth(240);
-        tv.setPadding(4, 0, 4, 10);
-        ll.addView(tv);
-
-        Button b1 = new Button(mContext);
-        b1.setText(String.format("Rate %s", APP_TITLE));
-        b1.setOnClickListener(v -> {
-            mContext.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + APP_PNAME)));
-            dialog.dismiss();
-        });
-        ll.addView(b1);
-
-        Button b2 = new Button(mContext);
-        String rmd = "Remind me later";
-        b2.setText(rmd);
-        b2.setOnClickListener(v -> dialog.dismiss());
-        ll.addView(b2);
-
-        Button b3 = new Button(mContext);
-        String no = "No, thanks";
-        b3.setText(no);
-        b3.setOnClickListener(v -> {
-            if (editor != null) {
-                editor.putBoolean("dontshowagain", true);
-                editor.commit();
-            }
-            dialog.dismiss();
-        });
-        ll.addView(b3);
-
-        dialog.setContentView(ll);
-        dialog.show();
+        // Professional Material Dialog
+        new MaterialAlertDialogBuilder(mContext)
+                .setTitle("Rate " + appName)
+                .setMessage("If you enjoy using " + appName + ", please take a moment to rate it on the Play Store. Your support helps us grow!")
+                .setCancelable(false)
+                .setPositiveButton("Rate Now", (dialog, which) -> {
+                    mContext.startActivity(new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("market://details?id=" + APP_PNAME)));
+                    if (editor != null) {
+                        editor.putBoolean("dont_show_again", true);
+                        editor.apply();
+                    }
+                    dialog.dismiss();
+                })
+                .setNeutralButton("Remind Me Later", (dialog, which) -> dialog.dismiss())
+                .setNegativeButton("No, Thanks", (dialog, which) -> {
+                    if (editor != null) {
+                        editor.putBoolean("dont_show_again", true);
+                        editor.apply();
+                    }
+                    dialog.dismiss();
+                })
+                .show();
     }
 }

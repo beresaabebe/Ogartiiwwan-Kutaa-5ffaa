@@ -17,6 +17,7 @@ import java.util.List;
 public class AboutAdapter extends RecyclerView.Adapter<AboutAdapter.AboutViewHolder> {
     private final List<AboutModel> modelList;
     private final OnLinkClicked linkClicked;
+    private long lastClickTime = 0; // Prevent double-taps at the adapter level
 
     public AboutAdapter(List<AboutModel> modelList, OnLinkClicked linkClicked) {
         this.modelList = modelList;
@@ -30,31 +31,44 @@ public class AboutAdapter extends RecyclerView.Adapter<AboutAdapter.AboutViewHol
     @NonNull
     @Override
     public AboutViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new AboutViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.about_list_item, parent, false));
+        // Professional approach: Inflate using the parent's context directly
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.about_list_item, parent, false);
+        return new AboutViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull AboutViewHolder holder, int position) {
         AboutModel model = modelList.get(position);
+
         holder.name.setText(model.getName());
         holder.imageView.setImageResource(model.getImage());
-        holder.itemView.setOnClickListener(v -> linkClicked.linkClicked(model));
+
+        // Anti-Double Click Logic for high revenue stability
+        holder.itemView.setOnClickListener(v -> {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastClickTime > 1000) { // 1 second debounce
+                lastClickTime = currentTime;
+                if (linkClicked != null) {
+                    linkClicked.linkClicked(model);
+                }
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return modelList.size();
+        return modelList != null ? modelList.size() : 0;
     }
 
+    // Static inner class is correct (avoids memory leaks)
     public static class AboutViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;
-        TextView name;
+        final ImageView imageView;
+        final TextView name;
+
         public AboutViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.image_about);
             name = itemView.findViewById(R.id.about_name);
-
         }
     }
-
 }

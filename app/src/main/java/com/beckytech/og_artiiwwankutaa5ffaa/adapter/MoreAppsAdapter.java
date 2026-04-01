@@ -9,19 +9,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.beckytech.og_artiiwwankutaa5ffaa.MainActivity;
 import com.beckytech.og_artiiwwankutaa5ffaa.R;
 import com.beckytech.og_artiiwwankutaa5ffaa.model.MoreAppsModel;
 import com.facebook.ads.AdView;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
 
 public class MoreAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final List<Object> modelList;
     private final MoreAppsClicked moreAppsClicked;
+    private long lastClickTime = 0;
 
-    private final int ITEM_TYPE_BOOK = 0;
-    private final int ITEM_TYPE_BANNER = 1;
+    private static final int ITEM_TYPE_APP = 0;
+    private static final int ITEM_TYPE_BANNER = 1;
 
     public MoreAppsAdapter(List<Object> modelList, MoreAppsClicked moreAppsClicked) {
         this.modelList = modelList;
@@ -29,66 +30,115 @@ public class MoreAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public interface MoreAppsClicked {
-        public void appClicked(MoreAppsModel model);
+        void appClicked(MoreAppsModel model);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (modelList.get(position) instanceof AdView) {
+            return ITEM_TYPE_BANNER;
+        }
+        return ITEM_TYPE_APP;
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        switch (viewType) {
-            case ITEM_TYPE_BOOK:
-                return new AppsViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.moreapps_list_item, parent, false));
-            case ITEM_TYPE_BANNER: default:
-                return new Adapter.AdviewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.ad_banner_fb, parent, false));
+        if (viewType == ITEM_TYPE_BANNER) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.ad_banner_fb, parent, false);
+            return new AdViewHolder(view);
+        } else {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.moreapps_list_item, parent, false);
+            return new AppsViewHolder(view);
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        switch (getItemViewType(position)) {
-            case ITEM_TYPE_BOOK:
-                if (modelList.get(position) instanceof MoreAppsModel) {
-                    AppsViewHolder appsViewHolder = (AppsViewHolder) holder;
-                    MoreAppsModel model = (MoreAppsModel) modelList.get(position);
-                    appsViewHolder.appName.setText(model.getAppName());
-                    appsViewHolder.appImages.setImageResource(model.getImages());
-                    appsViewHolder.itemView.setOnClickListener(v -> moreAppsClicked.appClicked(model));
+        if (holder instanceof AppsViewHolder appsHolder) {
+            MoreAppsModel model = (MoreAppsModel) modelList.get(position);
+
+            appsHolder.appName.setText(model.getAppName());
+            appsHolder.appImages.setImageResource(model.getImages());
+
+            // 1. Click logic for the Button (Interception)
+            appsHolder.downloadBtn.setOnClickListener(v -> {
+                if (checkClickTime()) {
+                    if (moreAppsClicked != null) moreAppsClicked.appClicked(model);
                 }
-                break;
-            case ITEM_TYPE_BANNER: default:
-                if (modelList.get(position) instanceof AdView) {
-                    Adapter.AdviewHolder adviewHolder = (Adapter.AdviewHolder) holder;
-                    AdView adView = (AdView) modelList.get(position);
-                    ViewGroup viewGroup = (ViewGroup) adviewHolder.itemView;
-                    if (viewGroup.getChildCount() > 0) {
-                        viewGroup.removeAllViews();
-                    }
-                    if (adView.getParent() != null) {
-                        ((ViewGroup)adView.getParent()).removeView(adView);
-                    }
-                    viewGroup.addView(adView);
+            });
+
+            // 2. Click logic for the Whole Card (Redundancy)
+            appsHolder.itemView.setOnClickListener(v -> {
+                if (checkClickTime()) {
+                    if (moreAppsClicked != null) moreAppsClicked.appClicked(model);
                 }
+            });
+
+        } else if (holder instanceof AdViewHolder adHolder) {
+            if (modelList.get(position) instanceof AdView adView) {
+                View container = adHolder.itemView;
+
+                if (adView != null) {
+                    container.setVisibility(View.VISIBLE);
+
+                    // Robust Margin Fix to prevent casting crash
+                    ViewGroup.LayoutParams baseParams = container.getLayoutParams();
+                    if (baseParams instanceof ViewGroup.MarginLayoutParams marginParams) {
+                        int marginSide = dpToPx(container, 12);
+                        int marginTopBottom = dpToPx(container, 8);
+                        marginParams.setMargins(marginSide, marginTopBottom, marginSide, marginTopBottom);
+                        marginParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                        container.setLayoutParams(marginParams);
+                    }
+
+                    ViewGroup adGroup = (ViewGroup) container;
+                    if (adGroup.getChildCount() > 0) adGroup.removeAllViews();
+                    if (adView.getParent() != null) ((ViewGroup) adView.getParent()).removeView(adView);
+                    adGroup.addView(adView);
+                } else {
+                    container.setVisibility(View.GONE);
+                }
+            }
         }
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        if (position == 0 || modelList.get(position) instanceof MoreAppsModel) return ITEM_TYPE_BOOK;
-        else return (position % MainActivity.ADS_PER_ITEM == 0) ? ITEM_TYPE_BANNER : ITEM_TYPE_BOOK;
+    // Professional Debounce Check
+    private boolean checkClickTime() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastClickTime > 1000) {
+            lastClickTime = currentTime;
+            return true;
+        }
+        return false;
+    }
+
+    private int dpToPx(View view, int dp) {
+        float density = view.getContext().getResources().getDisplayMetrics().density;
+        return Math.round((float) dp * density);
     }
 
     @Override
     public int getItemCount() {
-        return modelList.size();
+        return modelList != null ? modelList.size() : 0;
     }
 
     public static class AppsViewHolder extends RecyclerView.ViewHolder {
-        ImageView appImages;
-        TextView appName;
+        final ImageView appImages;
+        final TextView appName;
+        final MaterialButton downloadBtn; // Added this
+
         public AppsViewHolder(@NonNull View itemView) {
             super(itemView);
             appImages = itemView.findViewById(R.id.more_apps_image);
             appName = itemView.findViewById(R.id.txt_app_name);
+            downloadBtn = itemView.findViewById(R.id.download_btn); // Bind here
+        }
+    }
+
+    public static class AdViewHolder extends RecyclerView.ViewHolder {
+        public AdViewHolder(@NonNull View itemView) {
+            super(itemView);
         }
     }
 }
