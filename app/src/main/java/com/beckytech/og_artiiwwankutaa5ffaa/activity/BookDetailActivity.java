@@ -17,21 +17,14 @@ import com.beckytech.og_artiiwwankutaa5ffaa.contents.SubTitleContents;
 import com.beckytech.og_artiiwwankutaa5ffaa.contents.TitleContents;
 import com.beckytech.og_artiiwwankutaa5ffaa.model.Model;
 import com.facebook.ads.*;
-import com.github.barteksc.pdfviewer.PDFView;
-import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class BookDetailActivity extends AppCompatActivity {
     private final String TAG = "BookDetailActivity";
     private InterstitialAd interstitialAd;
     private AdView adView;
-    private PDFView pdfView;
     private TextView subTitle, title;
     private int currentIndex;
 
-    // Revenue logic
     private int pendingIndex = -1;
 
     @Override
@@ -39,7 +32,6 @@ public class BookDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_detail);
 
-        // Initialize Ads
         AudienceNetworkAds.initialize(this);
         loadBannerAd();
         loadInterstitialAd();
@@ -51,7 +43,6 @@ public class BookDetailActivity extends AppCompatActivity {
 
         title = findViewById(R.id.title_book_detail);
         subTitle = findViewById(R.id.sub_title_book_detail);
-        pdfView = findViewById(R.id.pdfView);
 
         title.setSelected(true);
         subTitle.setSelected(true);
@@ -85,7 +76,6 @@ public class BookDetailActivity extends AppCompatActivity {
         });
     }
 
-    // Logic to show ad BETWEEN chapters (High Value)
     private void handleChapterTransition(int nextIdx) {
         this.pendingIndex = nextIdx;
         if (interstitialAd != null && interstitialAd.isAdLoaded() && !interstitialAd.isAdInvalidated()) {
@@ -114,26 +104,52 @@ public class BookDetailActivity extends AppCompatActivity {
         title.setText(TitleContents.title[index]);
         subTitle.setText(SubTitleContents.subTitle[index]);
 
-        int start = ContentStartPage.pageStart[index];
-        int end = ContentEndPage.pageEnd[index];
+        int startPage = ContentStartPage.pageStart[index];
+        int endPage = ContentEndPage.pageEnd[index];
 
-        List<Integer> pages = new ArrayList<>();
-        for (int i = start; i <= end; i++) {
-            pages.add(i);
+        LinearLayout container = findViewById(R.id.pdfPagesContainer);
+        container.removeAllViews(); // Clean the slate
+
+        try {
+            // 1. Copy Asset to a temp file (PdfRenderer needs a File Descriptor)
+            java.io.File file = new java.io.File(getCacheDir(), "temp.pdf");
+            if (!file.exists()) {
+                java.io.InputStream in = getAssets().open("og5.pdf");
+                java.io.OutputStream out = new java.io.FileOutputStream(file);
+                byte[] buffer = new byte[1024];
+                int read;
+                while ((read = in.read(buffer)) != -1) { out.write(buffer, 0, read); }
+                in.close(); out.close();
+            }
+
+            // 2. Initialize Native Renderer
+            android.graphics.pdf.PdfRenderer renderer = new android.graphics.pdf.PdfRenderer(
+                    android.os.ParcelFileDescriptor.open(file, android.os.ParcelFileDescriptor.MODE_READ_ONLY));
+
+            // 3. Render only the specific range
+            for (int i = startPage; i <= endPage; i++) {
+                android.graphics.pdf.PdfRenderer.Page page = renderer.openPage(i);
+
+                // Create a bitmap for the page
+                android.graphics.Bitmap bitmap = android.graphics.Bitmap.createBitmap(
+                        page.getWidth() * 2, page.getHeight() * 2, android.graphics.Bitmap.Config.ARGB_8888);
+
+                page.render(bitmap, null, null, android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+
+                // Add to UI
+                android.widget.ImageView imageView = new android.widget.ImageView(this);
+                imageView.setImageBitmap(bitmap);
+                imageView.setAdjustViewBounds(true);
+                imageView.setPadding(0, 0, 0, 20);
+                container.addView(imageView);
+
+                page.close();
+            }
+            renderer.close();
+
+        } catch (Exception e) {
+            Log.e("RENDER_ERROR", "Failed to render native PDF", e);
         }
-
-        int[] array = new int[pages.size()];
-        for (int j = 0; j < pages.size(); j++) {
-            array[j] = pages.get(j);
-        }
-
-        pdfView.fromAsset("og5.pdf")
-                .pages(array)
-                .enableSwipe(true)
-                .swipeHorizontal(false)
-                .scrollHandle(new DefaultScrollHandle(this))
-                .spacing(10)
-                .load();
     }
 
     private void loadBannerAd() {
@@ -149,7 +165,7 @@ public class BookDetailActivity extends AppCompatActivity {
             @Override
             public void onInterstitialDismissed(Ad ad) {
                 proceedToChapter();
-                loadInterstitialAd(); // Load next one for the next chapter
+                loadInterstitialAd();
             }
 
             @Override

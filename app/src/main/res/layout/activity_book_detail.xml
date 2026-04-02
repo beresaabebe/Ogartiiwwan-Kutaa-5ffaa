@@ -70,12 +70,20 @@
         android:minHeight="50dp"
         android:orientation="vertical" />
 
-    <com.github.barteksc.pdfviewer.PDFView
-        android:id="@+id/pdfView"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#FFFFFF"
         android:layout_above="@id/banner_container"
-        android:layout_below="@id/toolbar_Rl" />
+        android:layout_below="@id/toolbar_Rl" >
+
+        <LinearLayout
+            android:id="@+id/pdfPagesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp" />
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
         android:layout_width="wrap_content"
