@@ -32,6 +32,7 @@
     <string name="fb_banner_ads_privacy">269798475392144_269799888725336</string>
     <string name="fb_banner_ads_main">269798475392144_269799888725336</string>
     <string name="fb_interstitial_ads_main">269798475392144_269800088725316</string>
+
     <string name="follow_us_on_facebook">Follow us on Facebook</string>
     <string name="app_icon">App icon</string>
     <string name="subtitle_section">Subtitle/Section</string>
@@ -39,5 +40,12 @@
     <string name="privacy_policy">Privacy Policy</string>
     <string name="arrow_to_right">Arrow to right</string>
     <string name="support_amp_community"><![CDATA[Support & Community]]></string>
+
+    <string name="google_app_open_ads_unit_id" translatable="false">ca-app-pub-8504401574247581/2146110241</string>
+    <string name="google_banner_ads_unit_id" translatable="false">ca-app-pub-8504401574247581/8662868393</string>
+    <string name="google_interstitial_ads_unit_id" translatable="false">ca-app-pub-8504401574247581/7126920280</string>
+    <string name="google_rewarded_interstitial_ads_unit_id" translatable="false">ca-app-pub-8504401574247581/1713197600</string>
+    <string name="google_rewarded_ads_unit_id" translatable="false">ca-app-pub-8504401574247581/7398015962</string>
+    <string name="google_native_ads_unit_id" translatable="false">ca-app-pub-8504401574247581/2098386587</string>
 
 </resources>

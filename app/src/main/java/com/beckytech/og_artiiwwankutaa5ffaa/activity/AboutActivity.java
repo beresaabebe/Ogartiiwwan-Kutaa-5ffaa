@@ -9,11 +9,10 @@ import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.beckytech.og_artiiwwankutaa5ffaa.BuildConfig;
 import com.beckytech.og_artiiwwankutaa5ffaa.R;
 import com.beckytech.og_artiiwwankutaa5ffaa.adapter.AboutAdapter;
@@ -21,9 +20,13 @@ import com.beckytech.og_artiiwwankutaa5ffaa.contents.AboutImages;
 import com.beckytech.og_artiiwwankutaa5ffaa.contents.AboutName;
 import com.beckytech.og_artiiwwankutaa5ffaa.contents.AboutUrlContents;
 import com.beckytech.og_artiiwwankutaa5ffaa.model.AboutModel;
-
-import com.facebook.ads.*;
-
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -33,38 +36,23 @@ public class AboutActivity extends AppCompatActivity implements AboutAdapter.OnL
     private final AboutImages images = new AboutImages();
     private final AboutName name = new AboutName();
     private final AboutUrlContents urlContents = new AboutUrlContents();
-
-    private InterstitialAd interstitialAd;
-    private AdView adView;
+    private InterstitialAd mInterstitialAd;
     private List<AboutModel> modelList;
-    private AboutModel pendingModel; // For high-revenue click handling
+    private AboutModel pendingModel;
 
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
-
-        // Initialize Ads immediately
-        AudienceNetworkAds.initialize(this);
         loadBannerAd();
         loadInterstitialAd();
-
-        // UI Setup
-        findViewById(R.id.ib_back).setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
-
-        TextView title = findViewById(R.id.tv_title);
-        title.setText("About Us");
-
+        findViewById(R.id.ib_back).setOnClickListener(v -> finish());
+        ((TextView) findViewById(R.id.tv_title)).setText("About Us");
         WebView webView = findViewById(R.id.webView);
         webView.loadUrl("file:///android_asset/about.html");
-
-        TextView version = findViewById(R.id.version_tv);
-        version.setText(String.format(Locale.ENGLISH, "Version: %s", BuildConfig.VERSION_NAME));
-
-        ImageView imageView = findViewById(R.id.imageView);
-        imageView.setOnClickListener(view -> shareApp());
-
+        ((TextView) findViewById(R.id.version_tv)).setText(String.format(Locale.ENGLISH, "Version: %s", BuildConfig.VERSION_NAME));
+        findViewById(R.id.imageView).setOnClickListener(view -> shareApp());
         setupRecyclerView();
     }
 
@@ -72,8 +60,7 @@ public class AboutActivity extends AppCompatActivity implements AboutAdapter.OnL
         RecyclerView recyclerView = findViewById(R.id.recycler_about);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         getData();
-        AboutAdapter adapter = new AboutAdapter(modelList, this);
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(new AboutAdapter(modelList, this));
     }
 
     private void getData() {
@@ -86,19 +73,13 @@ public class AboutActivity extends AppCompatActivity implements AboutAdapter.OnL
     @Override
     public void linkClicked(AboutModel model) {
         this.pendingModel = model;
-        // High Revenue Strategy: Show ad when the user tries to leave the app via a link
-        if (interstitialAd != null && interstitialAd.isAdLoaded() && !interstitialAd.isAdInvalidated()) {
-            interstitialAd.show();
-        } else {
-            proceedToLink();
-        }
+        if (mInterstitialAd != null) mInterstitialAd.show(this);
+        else proceedToLink();
     }
 
     private void proceedToLink() {
         if (pendingModel != null) {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(pendingModel.getUrl()));
-            startActivity(intent);
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(pendingModel.getUrl())));
             pendingModel = null;
         }
     }
@@ -106,49 +87,37 @@ public class AboutActivity extends AppCompatActivity implements AboutAdapter.OnL
     private void shareApp() {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        String shareBody = "Check out " + getString(R.string.app_name) + " on Play Store!";
-        intent.putExtra(Intent.EXTRA_TEXT, shareBody);
+        intent.putExtra(Intent.EXTRA_TEXT, "Check out " + getString(R.string.app_name) + " on Play Store!");
         startActivity(Intent.createChooser(intent, "Share via"));
     }
 
     private void loadBannerAd() {
-        // Move IDs to strings.xml for professional management
-        adView = new AdView(this, getString(R.string.fb_banner_ads_about_us), AdSize.BANNER_HEIGHT_50);
+        AdView adView = new AdView(this);
+        adView.setAdUnitId(getString(R.string.google_banner_ads_unit_id));
+        adView.setAdSize(AdSize.BANNER);
         LinearLayout adContainer = findViewById(R.id.banner_container);
-        adContainer.addView(adView);
-        adView.loadAd();
+        if (adContainer != null) {
+            adContainer.addView(adView);
+            adView.loadAd(new AdRequest.Builder().build());
+        }
     }
 
     private void loadInterstitialAd() {
-        interstitialAd = new InterstitialAd(this, getString(R.string.fb_interstitial_ads_about_us));
-
-        InterstitialAdListener listener = new InterstitialAdListener() {
-            @Override
-            public void onInterstitialDismissed(Ad ad) {
-                // User closed the ad, now we let them go to the link
-                proceedToLink();
-                loadInterstitialAd(); // Preload for the next click
-            }
-
-            @Override
-            public void onError(Ad ad, AdError adError) {
-                Log.e(TAG, "Ad Error: " + adError.getErrorMessage());
-                proceedToLink(); // Ad failed? Don't block the user, just let them go
-            }
-
-            @Override public void onAdLoaded(Ad ad) { Log.d(TAG, "Ad Loaded and ready"); }
-            @Override public void onInterstitialDisplayed(Ad ad) {}
-            @Override public void onAdClicked(Ad ad) {}
-            @Override public void onLoggingImpression(Ad ad) {}
-        };
-
-        interstitialAd.loadAd(interstitialAd.buildLoadAdConfig().withAdListener(listener).build());
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (adView != null) adView.destroy();
-        if (interstitialAd != null) interstitialAd.destroy();
-        super.onDestroy();
+        InterstitialAd.load(this, getString(R.string.google_interstitial_ads_unit_id),
+                new AdRequest.Builder().build(), new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        mInterstitialAd = interstitialAd;
+                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                proceedToLink();
+                                loadInterstitialAd();
+                            }
+                        });
+                    }
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) { mInterstitialAd = null; }
+                });
     }
 }

@@ -1,42 +1,33 @@
-Project Title: Ogartiiwwan Kutaa 5ffaa
+# Og-artiiwwan Kutaa 5ffaa - Release Notes
 
-Developer: Beresa Abebe
+## Version 1.8.0
 
-Overview
+### Major Updates:
+- **Professional PDF Renderer**: Switched to a native PDF renderer with smooth vertical scrolling and high-quality rendering.
+- **Enhanced Navigation**: Added `ViewPager2` support for seamless chapter switching with horizontal swipes.
+- **High Revenue Ad Strategy**: 
+    - Google AdMob integrated as the primary ad provider.
+    - Mediation implemented for Facebook Audience Network and Unity Ads to maximize eCPM.
+    - Smart Ad injection: Native, Medium Rectangle, and Banner ads displayed every 4 items.
+    - Rewarded and Rewarded Interstitial ads added during chapter transitions.
+    - Modern Collapsible Banner Ads implemented for better visibility.
+    - Optimized App Open Ads to trigger correctly without double appearance.
+- **Improved User Engagement**:
+    - Integrated In-App Review API for seamless rating.
+    - Modernized "Rate Us" dialog with dynamic star descriptions.
+    - Integrated In-App Update API to ensure users are always on the latest version.
+- **Stability & Performance**:
+    - **16KB Page Size Support**: Fixed crashes on modern Android devices by updating native libraries and aligning JNI components.
+    - **R8/Proguard Optimization**: Fixed missing classes and obfuscation issues for Facebook, Unity, and AdMob.
+    - **Firebase Crashlytics**: Integrated Firebase Crashlytics and Analytics for real-time crash reporting and stability monitoring.
+    - **Bug Fixes**: Resolved potential ANRs and crashes related to WorkManager and PDF rendering.
+- **Compliance**:
+    - Added `translatable="false"` to all ad unit IDs to prevent localization issues.
+    - Fixed "Unsupported language Admob and AdSense Policy" by ensuring correct ad request configurations.
+    - Menus updated to standard English format for better accessibility.
 
-The Ogartiiwwan Kutaa 5ffaa is a mobile application developed by Beresa Abebe, a software developer at Wollega University, to bring the Grade 5 Arts curriculum into a convenient digital format. This app is part of a series of educational tools designed to make learning more accessible and interactive for students and teachers across Ethiopia. By providing the full textbook content on a smartphone, the app eliminates the need for physical books and allows for easy, on-the-go learning.
+### Play Store Link:
+[Download Og-artiiwwan Kutaa 5ffaa](https://play.google.com/store/apps/details?id=com.beckytech.og_artiiwwankutaa5ffaa)
 
-Key Features
-Complete Offline Functionality: The app is designed to work entirely offline after the initial download. This is a critical feature for students in areas with limited or no internet access, ensuring they can study at any time and place.
-
-Replaces Physical Textbooks: This app serves as a digital replica of the Grade 5 Arts textbook, providing a lightweight and portable alternative for students. It's a convenient solution that ensures students never "forget their book at home."
-
-Intuitive and Clear Organization: The app's content is structured with a simple, easy-to-navigate interface. The chapters are clearly divided, allowing both students and teachers to find specific topics with minimal effort.
-
-Comprehensive Curriculum: The application covers all the key areas of the Grade 5 Arts curriculum, including:
-
-Hubannoo Artistawaa (Artistic Understanding)
-
-Dandeettii Kalaqaa (Creative Skills)
-
-Aadaafi Seenaa (Culture and History)
-
-Hawwannaa Og-aartiiwwanii (Attraction of Arts)
-
-Hojiirra Oolmaa Og-aartiiwwanii (Application of Arts)
-
-Enhanced Performance: The app is regularly updated with bug fixes, performance enhancements, and user interface improvements to ensure a smooth and reliable user experience.
-
-How to Use
-
-To get started, simply download and install the Ogartiiwwan Kutaa 5ffaa app from the Google Play Store. Once installed, you can access all the learning materials without needing an internet connection. The clear chapter divisions make it simple to navigate through the lessons and revisit specific topics.
-
-Contact and Feedback
-
-Your feedback is highly valued and helps in the continuous improvement of this application.
-
-Email: roobaanuuf@gmail.com
-
-Phone: +251917361283
-
-Thank you for using the Ogartiiwwan Kutaa 5ffaa app. We hope it makes your educational journey in the arts more convenient and productive.
+---
+Developed by BeckyTech.

@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.beckytech.og_artiiwwankutaa5ffaa.R;
 import com.beckytech.og_artiiwwankutaa5ffaa.model.MoreAppsModel;
-import com.facebook.ads.AdView;
+import com.google.android.gms.ads.AdView;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.List;

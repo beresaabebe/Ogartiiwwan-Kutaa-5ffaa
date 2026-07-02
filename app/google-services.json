@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "697147225616",
     "project_id": "og-artiiwwan-kutaa-5ffaa",
-    "storage_bucket": "og-artiiwwan-kutaa-5ffaa.appspot.com"
+    "storage_bucket": "og-artiiwwan-kutaa-5ffaa.firebasestorage.app"
   },
   "client": [
     {
@@ -12,12 +12,7 @@
           "package_name": "com.beckytech.og_artiiwwankutaa5ffaa"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "697147225616-2ufu3vccmbojdacbj3golmbfhiipp98q.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyBKsTEFPXZSXpqQQYevraGxFmALi5uoWZA"
@@ -25,12 +20,7 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "697147225616-2ufu3vccmbojdacbj3golmbfhiipp98q.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }
