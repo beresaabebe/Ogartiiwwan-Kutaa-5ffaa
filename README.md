@@ -42,7 +42,7 @@ To get a local copy up and running, follow these simple steps:
 
 1. **Clone the repo**:
    ```bash
-   git clone https://github.com/BeckyTech/Ogartiiwwan-Kutaa-5ffaa.git
+   git clone https://github.com/beresaabebe/Ogartiiwwan-Kutaa-5ffaa.git
    ```
 2. **Open in Android Studio**:
    - File > Open > Select the project directory.
