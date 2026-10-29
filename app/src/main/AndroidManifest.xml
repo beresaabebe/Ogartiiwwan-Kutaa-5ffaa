@@ -19,11 +19,6 @@
         tools:targetApi="36">
 
         <activity
-            android:name=".activity.AppOpenActivity"
-            android:exported="false"
-            android:theme="@style/TranslucentTheme" />
-
-        <activity
             android:name=".activity.SplashActivity"
             android:exported="true"
             android:screenOrientation="fullSensor"
@@ -53,9 +48,7 @@
             android:name=".activity.PrivacyActivity"
             android:exported="false" />
 
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-8504401574247581~7541358415" />
+
 
     </application>
 

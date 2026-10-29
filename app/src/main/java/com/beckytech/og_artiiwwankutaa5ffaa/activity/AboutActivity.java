@@ -4,12 +4,9 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.webkit.WebView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,19 +17,17 @@ import com.beckytech.og_artiiwwankutaa5ffaa.contents.AboutImages;
 import com.beckytech.og_artiiwwankutaa5ffaa.contents.AboutName;
 import com.beckytech.og_artiiwwankutaa5ffaa.contents.AboutUrlContents;
 import com.beckytech.og_artiiwwankutaa5ffaa.model.AboutModel;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.interstitial.InterstitialAd;
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.facebook.ads.Ad;
+import com.facebook.ads.AdError;
+import com.facebook.ads.AdSize;
+import com.facebook.ads.AdView;
+import com.facebook.ads.InterstitialAd;
+import com.facebook.ads.InterstitialAdListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class AboutActivity extends AppCompatActivity implements AboutAdapter.OnLinkClicked {
-    private final String TAG = "AboutActivity";
     private final AboutImages images = new AboutImages();
     private final AboutName name = new AboutName();
     private final AboutUrlContents urlContents = new AboutUrlContents();
@@ -73,8 +68,11 @@ public class AboutActivity extends AppCompatActivity implements AboutAdapter.OnL
     @Override
     public void linkClicked(AboutModel model) {
         this.pendingModel = model;
-        if (mInterstitialAd != null) mInterstitialAd.show(this);
-        else proceedToLink();
+        if (mInterstitialAd != null && mInterstitialAd.isAdLoaded()) {
+            mInterstitialAd.show();
+        } else {
+            proceedToLink();
+        }
     }
 
     private void proceedToLink() {
@@ -92,32 +90,42 @@ public class AboutActivity extends AppCompatActivity implements AboutAdapter.OnL
     }
 
     private void loadBannerAd() {
-        AdView adView = new AdView(this);
-        adView.setAdUnitId(getString(R.string.google_banner_ads_unit_id));
-        adView.setAdSize(AdSize.BANNER);
+        AdView adView = new AdView(this, getString(R.string.fb_banner_ads_about_us), AdSize.BANNER_HEIGHT_50);
         LinearLayout adContainer = findViewById(R.id.banner_container);
         if (adContainer != null) {
             adContainer.addView(adView);
-            adView.loadAd(new AdRequest.Builder().build());
+            adView.loadAd();
         }
     }
 
     private void loadInterstitialAd() {
-        InterstitialAd.load(this, getString(R.string.google_interstitial_ads_unit_id),
-                new AdRequest.Builder().build(), new InterstitialAdLoadCallback() {
-                    @Override
-                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-                        mInterstitialAd = interstitialAd;
-                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
-                            @Override
-                            public void onAdDismissedFullScreenContent() {
-                                proceedToLink();
-                                loadInterstitialAd();
-                            }
-                        });
-                    }
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) { mInterstitialAd = null; }
-                });
+        mInterstitialAd = new InterstitialAd(this, getString(R.string.fb_interstitial_ads_about_us));
+        InterstitialAdListener listener = new InterstitialAdListener() {
+            @Override
+            public void onError(Ad ad, AdError adError) {
+                mInterstitialAd = null;
+            }
+
+            @Override
+            public void onAdLoaded(Ad ad) {}
+
+            @Override
+            public void onAdClicked(Ad ad) {}
+
+            @Override
+            public void onLoggingImpression(Ad ad) {}
+
+            @Override
+            public void onInterstitialDisplayed(Ad ad) {}
+
+            @Override
+            public void onInterstitialDismissed(Ad ad) {
+                proceedToLink();
+                if (mInterstitialAd != null) {
+                    mInterstitialAd.loadAd();
+                }
+            }
+        };
+        mInterstitialAd.loadAd(mInterstitialAd.buildLoadAdConfig().withAdListener(listener).build());
     }
 }

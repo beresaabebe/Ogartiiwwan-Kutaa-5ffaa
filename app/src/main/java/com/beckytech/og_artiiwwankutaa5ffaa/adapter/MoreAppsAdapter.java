@@ -5,15 +5,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.beckytech.og_artiiwwankutaa5ffaa.R;
 import com.beckytech.og_artiiwwankutaa5ffaa.model.MoreAppsModel;
-import com.google.android.gms.ads.AdView;
+import com.facebook.ads.AdView;
 import com.google.android.material.button.MaterialButton;
-
 import java.util.List;
 
 public class MoreAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -61,28 +58,25 @@ public class MoreAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             appsHolder.appName.setText(model.getAppName());
             appsHolder.appImages.setImageResource(model.getImages());
 
-            // 1. Click logic for the Button (Interception)
             appsHolder.downloadBtn.setOnClickListener(v -> {
                 if (checkClickTime()) {
                     if (moreAppsClicked != null) moreAppsClicked.appClicked(model);
                 }
             });
 
-            // 2. Click logic for the Whole Card (Redundancy)
             appsHolder.itemView.setOnClickListener(v -> {
                 if (checkClickTime()) {
                     if (moreAppsClicked != null) moreAppsClicked.appClicked(model);
                 }
             });
 
-        } else if (holder instanceof AdViewHolder adHolder) {
+        } else if (holder instanceof AdViewHolder) {
             if (modelList.get(position) instanceof AdView adView) {
-                View container = adHolder.itemView;
+                View container = holder.itemView;
 
                 if (adView != null) {
                     container.setVisibility(View.VISIBLE);
 
-                    // Robust Margin Fix to prevent casting crash
                     ViewGroup.LayoutParams baseParams = container.getLayoutParams();
                     if (baseParams instanceof ViewGroup.MarginLayoutParams marginParams) {
                         int marginSide = dpToPx(container, 12);
@@ -103,7 +97,6 @@ public class MoreAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    // Professional Debounce Check
     private boolean checkClickTime() {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastClickTime > 1000) {
@@ -126,13 +119,13 @@ public class MoreAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public static class AppsViewHolder extends RecyclerView.ViewHolder {
         final ImageView appImages;
         final TextView appName;
-        final MaterialButton downloadBtn; // Added this
+        final MaterialButton downloadBtn;
 
         public AppsViewHolder(@NonNull View itemView) {
             super(itemView);
             appImages = itemView.findViewById(R.id.more_apps_image);
             appName = itemView.findViewById(R.id.txt_app_name);
-            downloadBtn = itemView.findViewById(R.id.download_btn); // Bind here
+            downloadBtn = itemView.findViewById(R.id.download_btn);
         }
     }
 

@@ -27,13 +27,12 @@ import com.beckytech.og_artiiwwankutaa5ffaa.contents.SubTitleContents;
 import com.beckytech.og_artiiwwankutaa5ffaa.contents.TitleContents;
 import com.beckytech.og_artiiwwankutaa5ffaa.model.Model;
 import com.beckytech.og_artiiwwankutaa5ffaa.model.MoreAppsModel;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.interstitial.InterstitialAd;
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.facebook.ads.Ad;
+import com.facebook.ads.AdError;
+import com.facebook.ads.AdSize;
+import com.facebook.ads.AdView;
+import com.facebook.ads.InterstitialAd;
+import com.facebook.ads.InterstitialAdListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -89,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnItemCli
         appUpdateManager = AppUpdateManagerFactory.create(this);
         Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
         appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
-            if (appUpdateInfo.updateAvailability() == com.google.android.play.core.install.model.UpdateAvailability.UPDATE_AVAILABLE
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                     && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
                 try {
                     appUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.IMMEDIATE, this, UPDATE_CODE);
@@ -128,52 +127,58 @@ public class MainActivity extends AppCompatActivity implements Adapter.OnItemCli
 
     private void injectAdsIntoList(List<Object> list) {
         for (int i = 3; i < list.size(); i += ADS_PER_ITEM) {
-            AdView adView = new AdView(this);
-            adView.setAdUnitId(getString(R.string.google_banner_ads_unit_id));
-            adView.setAdSize((i % 2 == 0) ? AdSize.MEDIUM_RECTANGLE : AdSize.BANNER);
+            AdView adView = new AdView(this, getString(R.string.fb_banner_ads_main),
+                    (i % 2 == 0) ? AdSize.RECTANGLE_HEIGHT_250 : AdSize.BANNER_HEIGHT_50);
             list.add(i, adView);
-            adView.loadAd(new AdRequest.Builder().build());
+            adView.loadAd();
         }
     }
 
     private void loadBannerAd() {
-        AdView adView = new AdView(this);
-        adView.setAdUnitId(getString(R.string.google_banner_ads_unit_id));
-        adView.setAdSize(AdSize.BANNER);
+        AdView adView = new AdView(this, getString(R.string.fb_banner_ads_main), AdSize.BANNER_HEIGHT_50);
         LinearLayout adContainer = findViewById(R.id.banner_container);
         if (adContainer != null) {
             adContainer.addView(adView);
-            adView.loadAd(new AdRequest.Builder().build());
+            adView.loadAd();
         }
     }
 
     private void loadInterstitialAd() {
-        InterstitialAd.load(this, getString(R.string.google_interstitial_ads_unit_id),
-                new AdRequest.Builder().build(), new InterstitialAdLoadCallback() {
-                    @Override
-                    public void onAdLoaded(@androidx.annotation.NonNull InterstitialAd interstitialAd) {
-                        mInterstitialAd = interstitialAd;
-                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
-                            @Override
-                            public void onAdDismissedFullScreenContent() {
-                                proceedToDetail();
-                                loadInterstitialAd();
-                            }
-                        });
-                    }
+        mInterstitialAd = new InterstitialAd(this, getString(R.string.fb_interstitial_ads_main));
+        InterstitialAdListener listener = new InterstitialAdListener() {
+            @Override
+            public void onError(Ad ad, AdError adError) {
+                mInterstitialAd = null;
+            }
 
-                    @Override
-                    public void onAdFailedToLoad(@androidx.annotation.NonNull LoadAdError loadAdError) {
-                        mInterstitialAd = null;
-                    }
-                });
+            @Override
+            public void onAdLoaded(Ad ad) {}
+
+            @Override
+            public void onAdClicked(Ad ad) {}
+
+            @Override
+            public void onLoggingImpression(Ad ad) {}
+
+            @Override
+            public void onInterstitialDisplayed(Ad ad) {}
+
+            @Override
+            public void onInterstitialDismissed(Ad ad) {
+                proceedToDetail();
+                if (mInterstitialAd != null) {
+                    mInterstitialAd.loadAd();
+                }
+            }
+        };
+        mInterstitialAd.loadAd(mInterstitialAd.buildLoadAdConfig().withAdListener(listener).build());
     }
 
     @Override
     public void onItemClicked(Model model) {
         this.pendingModel = model;
-        if (mInterstitialAd != null) {
-            mInterstitialAd.show(this);
+        if (mInterstitialAd != null && mInterstitialAd.isAdLoaded()) {
+            mInterstitialAd.show();
         } else {
             proceedToDetail();
         }

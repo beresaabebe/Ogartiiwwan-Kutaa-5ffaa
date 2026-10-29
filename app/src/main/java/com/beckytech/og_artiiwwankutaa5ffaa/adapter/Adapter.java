@@ -3,16 +3,12 @@ package com.beckytech.og_artiiwwankutaa5ffaa.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.beckytech.og_artiiwwankutaa5ffaa.R;
 import com.beckytech.og_artiiwwankutaa5ffaa.model.Model;
-import com.google.android.gms.ads.AdView;
-
+import com.facebook.ads.AdView;
 import java.util.List;
 
 public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -45,7 +41,6 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == ITEM_TYPE_BANNER) {
-            // Using the collapsed XML we created earlier (visibility:gone)
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.ad_banner_fb, parent, false);
             return new AdViewHolder(view);
         } else {
@@ -72,27 +67,21 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
 
         }
-        else if (holder instanceof AdViewHolder adHolder) {
+        else if (holder instanceof AdViewHolder) {
             if (modelList.get(position) instanceof AdView adView) {
-                // The itemView IS the LinearLayout from ad_banner_fb.xml
-                View container = adHolder.itemView;
-
+                View container = holder.itemView;
                 if (adView != null) {
                     container.setVisibility(View.VISIBLE);
 
-                    // FIX: Use MarginLayoutParams to avoid the ClassCastException
                     ViewGroup.LayoutParams baseParams = container.getLayoutParams();
                     if (baseParams instanceof ViewGroup.MarginLayoutParams marginParams) {
                         int marginSide = dpToPx(container, 12);
                         int marginTopBottom = dpToPx(container, 8);
                         marginParams.setMargins(marginSide, marginTopBottom, marginSide, marginTopBottom);
-
-                        // Set height back to wrap_content in case it was collapsed to 0
                         marginParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                         container.setLayoutParams(marginParams);
                     }
 
-                    // Standard cleaning logic
                     ViewGroup adGroup = (ViewGroup) container;
                     if (adGroup.getChildCount() > 0) {
                         adGroup.removeAllViews();
@@ -104,15 +93,12 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     adGroup.addView(adView);
                 } else {
-                    // COLLAPSE logic if ad is null
                     container.setVisibility(View.GONE);
-                    container.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
                 }
             }
         }
     }
 
-    // Helper to convert DP to Pixels for dynamic margins
     private int dpToPx(View view, int dp) {
         float density = view.getContext().getResources().getDisplayMetrics().density;
         return Math.round((float) dp * density);

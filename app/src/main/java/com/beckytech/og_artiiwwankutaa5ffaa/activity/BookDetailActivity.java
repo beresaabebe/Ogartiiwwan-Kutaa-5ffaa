@@ -7,8 +7,6 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 import com.beckytech.og_artiiwwankutaa5ffaa.R;
@@ -16,16 +14,16 @@ import com.beckytech.og_artiiwwankutaa5ffaa.adapter.ChapterPagerAdapter;
 import com.beckytech.og_artiiwwankutaa5ffaa.contents.SubTitleContents;
 import com.beckytech.og_artiiwwankutaa5ffaa.contents.TitleContents;
 import com.beckytech.og_artiiwwankutaa5ffaa.model.Model;
-import com.google.ads.mediation.admob.AdMobAdapter;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.OnUserEarnedRewardListener;
-import com.google.android.gms.ads.rewarded.RewardedAd;
-import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
-import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
-import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
+import com.facebook.ads.Ad;
+import com.facebook.ads.AdError;
+import com.facebook.ads.AdSize;
+import com.facebook.ads.AdView;
+import com.facebook.ads.InterstitialAd;
+import com.facebook.ads.InterstitialAdListener;
+import com.unity3d.ads.IUnityAdsLoadListener;
+import com.unity3d.ads.IUnityAdsShowListener;
+import com.unity3d.ads.UnityAds;
+import com.unity3d.ads.UnityAdsShowOptions;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -37,8 +35,10 @@ public class BookDetailActivity extends AppCompatActivity {
     private TextView subTitle, title;
     private int currentIndex;
     private PdfRenderer pdfRenderer;
-    private RewardedAd rewardedAd;
-    private RewardedInterstitialAd rewardedInterstitialAd;
+    private AdView bannerAdView;
+    private InterstitialAd fbInterstitialAd;
+    private boolean isUnityInterstitialLoaded = false;
+    private boolean isUnityRewardedLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +48,9 @@ public class BookDetailActivity extends AppCompatActivity {
         initViews();
         loadPdf();
         setupViewPager();
-        loadCollapsibleBanner();
-        loadRewardedAds();
+        loadBannerAd();
+        loadFacebookInterstitial();
+        loadUnityAds();
 
         Intent intent = getIntent();
         Model model = (Model) intent.getSerializableExtra("data");
@@ -109,55 +110,120 @@ public class BookDetailActivity extends AppCompatActivity {
         return 0;
     }
 
-    private void loadCollapsibleBanner() {
-        AdView adView = new AdView(this);
-        adView.setAdUnitId(getString(R.string.google_banner_ads_unit_id));
-        adView.setAdSize(AdSize.BANNER);
-        
-        Bundle extras = new Bundle();
-        extras.putString("collapsible", "bottom");
-        AdRequest adRequest = new AdRequest.Builder()
-                .addNetworkExtrasBundle(AdMobAdapter.class, extras)
-                .build();
-        
+    private void loadBannerAd() {
+        bannerAdView = new AdView(this, getString(R.string.fb_banner_ads_detail), AdSize.BANNER_HEIGHT_50);
         LinearLayout container = findViewById(R.id.banner_container);
-        container.addView(adView);
-        adView.loadAd(adRequest);
+        if (container != null) {
+            container.addView(bannerAdView);
+            bannerAdView.loadAd();
+        }
     }
 
-    private void loadRewardedAds() {
-        RewardedAd.load(this, getString(R.string.google_rewarded_ads_unit_id),
-                new AdRequest.Builder().build(), new RewardedAdLoadCallback() {
-                    @Override
-                    public void onAdLoaded(@NonNull RewardedAd ad) { rewardedAd = ad; }
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError error) { rewardedAd = null; }
-                });
+    private void loadFacebookInterstitial() {
+        fbInterstitialAd = new InterstitialAd(this, getString(R.string.fb_interstitial_ads_detail));
+        InterstitialAdListener listener = new InterstitialAdListener() {
+            @Override
+            public void onError(Ad ad, AdError adError) {
+                fbInterstitialAd = null;
+            }
 
-        RewardedInterstitialAd.load(this, getString(R.string.google_rewarded_interstitial_ads_unit_id),
-                new AdRequest.Builder().build(), new RewardedInterstitialAdLoadCallback() {
-                    @Override
-                    public void onAdLoaded(@NonNull RewardedInterstitialAd ad) { rewardedInterstitialAd = ad; }
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError error) { rewardedInterstitialAd = null; }
-                });
+            @Override
+            public void onAdLoaded(Ad ad) {}
+
+            @Override
+            public void onAdClicked(Ad ad) {}
+
+            @Override
+            public void onLoggingImpression(Ad ad) {}
+
+            @Override
+            public void onInterstitialDisplayed(Ad ad) {}
+
+            @Override
+            public void onInterstitialDismissed(Ad ad) {
+                if (fbInterstitialAd != null) {
+                    fbInterstitialAd.loadAd();
+                }
+            }
+        };
+        fbInterstitialAd.loadAd(fbInterstitialAd.buildLoadAdConfig().withAdListener(listener).build());
+    }
+
+    private void loadUnityAds() {
+        UnityAds.load(getString(R.string.unity_interstitial_ads_unit_id), new IUnityAdsLoadListener() {
+            @Override
+            public void onUnityAdsAdLoaded(String placementId) {
+                isUnityInterstitialLoaded = true;
+            }
+
+            @Override
+            public void onUnityAdsFailedToLoad(String placementId, UnityAds.UnityAdsLoadError error, String message) {
+                isUnityInterstitialLoaded = false;
+            }
+        });
+
+        UnityAds.load(getString(R.string.unity_rewarded_ads_unit_id), new IUnityAdsLoadListener() {
+            @Override
+            public void onUnityAdsAdLoaded(String placementId) {
+                isUnityRewardedLoaded = true;
+            }
+
+            @Override
+            public void onUnityAdsFailedToLoad(String placementId, UnityAds.UnityAdsLoadError error, String message) {
+                isUnityRewardedLoaded = false;
+            }
+        });
     }
 
     private void showRandomAd() {
-        int rand = new Random().nextInt(10);
-        if (rand % 2 == 0) {
-            if (rewardedAd != null) {
-                rewardedAd.show(this, rewardItem -> loadRewardedAds());
+        int rand = new Random().nextInt(3);
+        if (rand == 0) {
+            if (fbInterstitialAd != null && fbInterstitialAd.isAdLoaded()) {
+                fbInterstitialAd.show();
+            }
+        } else if (rand == 1) {
+            if (isUnityInterstitialLoaded) {
+                UnityAds.show(this, getString(R.string.unity_interstitial_ads_unit_id), new UnityAdsShowOptions(), new IUnityAdsShowListener() {
+                    @Override
+                    public void onUnityAdsShowFailure(String placementId, UnityAds.UnityAdsShowError error, String message) {}
+
+                    @Override
+                    public void onUnityAdsShowStart(String placementId) {}
+
+                    @Override
+                    public void onUnityAdsShowClick(String placementId) {}
+
+                    @Override
+                    public void onUnityAdsShowComplete(String placementId, UnityAds.UnityAdsShowCompletionState state) {
+                        loadUnityAds();
+                    }
+                });
             }
         } else {
-            if (rewardedInterstitialAd != null) {
-                rewardedInterstitialAd.show(this, rewardItem -> loadRewardedAds());
+            if (isUnityRewardedLoaded) {
+                UnityAds.show(this, getString(R.string.unity_rewarded_ads_unit_id), new UnityAdsShowOptions(), new IUnityAdsShowListener() {
+                    @Override
+                    public void onUnityAdsShowFailure(String placementId, UnityAds.UnityAdsShowError error, String message) {}
+
+                    @Override
+                    public void onUnityAdsShowStart(String placementId) {}
+
+                    @Override
+                    public void onUnityAdsShowClick(String placementId) {}
+
+                    @Override
+                    public void onUnityAdsShowComplete(String placementId, UnityAds.UnityAdsShowCompletionState state) {
+                        loadUnityAds();
+                    }
+                });
             }
         }
     }
 
     @Override
     protected void onDestroy() {
+        if (bannerAdView != null) bannerAdView.destroy();
+        if (fbInterstitialAd != null) fbInterstitialAd.destroy();
         if (pdfRenderer != null) pdfRenderer.close();
         super.onDestroy();
     }

@@ -13,9 +13,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.beckytech.og_artiiwwankutaa5ffaa.R;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
+import com.facebook.ads.AdSize;
+import com.facebook.ads.AdView;
 
 public class PrivacyActivity extends AppCompatActivity {
 
@@ -68,13 +67,11 @@ public class PrivacyActivity extends AppCompatActivity {
     }
 
     private void loadBannerAd() {
-        AdView adView = new AdView(this);
-        adView.setAdUnitId(getString(R.string.google_banner_ads_unit_id));
-        adView.setAdSize(AdSize.BANNER);
+        AdView adView = new AdView(this, getString(R.string.fb_banner_ads_privacy), AdSize.BANNER_HEIGHT_50);
         LinearLayout adContainer = findViewById(R.id.banner_container);
         if (adContainer != null) {
             adContainer.addView(adView);
-            adView.loadAd(new AdRequest.Builder().build());
+            adView.loadAd();
         }
     }
 }

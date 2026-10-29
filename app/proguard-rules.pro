@@ -1,7 +1,3 @@
-# Google AdMob
--keep class com.google.android.gms.ads.** { *; }
--keep class com.google.ads.mediation.** { *; }
-
 # Facebook Audience Network
 -keep class com.facebook.ads.** { *; }
 -dontwarn com.facebook.ads.**
