@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.4] - Build 12 - 2026-03-31
+
+### Added
+- **Enterprise Monetization Update**: Completely removed Google AdMob and integrated enterprise-grade direct **Facebook Audience Network** and **Unity Ads** using all placement IDs efficiently without waste.
+- **Asynchronous PDF Processing**: Moved PDF asset extraction and renderer initialization to background threads to ensure zero main-thread blocking and instant app startup.
+- **LRU Bitmap Caching**: Implemented a high-performance memory cache (`LruCache`) for rendered PDF pages to guarantee buttery-smooth 60/120 FPS scrolling and prevent OutOfMemory (OOM) errors.
+- **Room Database Persistence**: Added local Room DB to automatically save and restore student reading progress across sessions.
+
+### Fixed
+- **Performance & Stability**: Eliminated UI jank, optimized memory footprint, and ensured 16KB memory page size alignment compliance.
+
 ## [1.8.0] - 2026-08-23
 
 ### Added
@@ -35,4 +46,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **UI/UX**: Menus updated to standard English format for better accessibility.
 
+[1.7.4]: https://play.google.com/store/apps/details?id=com.beckytech.og_artiiwwankutaa5ffaa
 [1.8.0]: https://play.google.com/store/apps/details?id=com.beckytech.og_artiiwwankutaa5ffaa
