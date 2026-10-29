@@ -13,6 +13,8 @@ import com.beckytech.og_artiiwwankutaa5ffaa.R;
 import com.beckytech.og_artiiwwankutaa5ffaa.adapter.ChapterPagerAdapter;
 import com.beckytech.og_artiiwwankutaa5ffaa.contents.SubTitleContents;
 import com.beckytech.og_artiiwwankutaa5ffaa.contents.TitleContents;
+import com.beckytech.og_artiiwwankutaa5ffaa.db.AppDatabase;
+import com.beckytech.og_artiiwwankutaa5ffaa.db.BookProgress;
 import com.beckytech.og_artiiwwankutaa5ffaa.model.Model;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
@@ -28,37 +30,34 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BookDetailActivity extends AppCompatActivity {
     private final String TAG = "BookDetailActivity";
     private ViewPager2 viewPager;
     private TextView subTitle, title;
-    private int currentIndex;
+    private int currentIndex = 0;
     private PdfRenderer pdfRenderer;
     private AdView bannerAdView;
     private InterstitialAd fbInterstitialAd;
     private boolean isUnityInterstitialLoaded = false;
     private boolean isUnityRewardedLoaded = false;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private AppDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_detail);
 
+        db = AppDatabase.getInstance(this);
+
         initViews();
-        loadPdf();
-        setupViewPager();
+        loadPdfAsync();
         loadBannerAd();
         loadFacebookInterstitial();
         loadUnityAds();
-
-        Intent intent = getIntent();
-        Model model = (Model) intent.getSerializableExtra("data");
-        if (model != null) {
-            currentIndex = getIndex(model.getTitle());
-            viewPager.setCurrentItem(currentIndex, false);
-            updateToolbar(currentIndex);
-        }
     }
 
     private void initViews() {
@@ -68,21 +67,41 @@ public class BookDetailActivity extends AppCompatActivity {
         findViewById(R.id.back_book_detail).setOnClickListener(v -> finish());
     }
 
-    private void loadPdf() {
-        try {
-            File file = new File(getCacheDir(), "book.pdf");
-            if (!file.exists()) {
-                InputStream in = getAssets().open("og5.pdf");
-                FileOutputStream out = new FileOutputStream(file);
-                byte[] buffer = new byte[1024];
-                int read;
-                while ((read = in.read(buffer)) != -1) { out.write(buffer, 0, read); }
-                in.close(); out.close();
+    private void loadPdfAsync() {
+        executorService.execute(() -> {
+            try {
+                File file = new File(getCacheDir(), "book.pdf");
+                if (!file.exists()) {
+                    InputStream in = getAssets().open("og5.pdf");
+                    FileOutputStream out = new FileOutputStream(file);
+                    byte[] buffer = new byte[1024];
+                    int read;
+                    while ((read = in.read(buffer)) != -1) { out.write(buffer, 0, read); }
+                    in.close(); out.close();
+                }
+                pdfRenderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
+                
+                // Fetch last read progress from Room DB
+                BookProgress progress = db.bookProgressDao().getProgress();
+                if (progress != null) {
+                    currentIndex = progress.getLastChapterPosition();
+                }
+
+                Intent intent = getIntent();
+                Model model = (Model) intent.getSerializableExtra("data");
+                if (model != null) {
+                    currentIndex = getIndex(model.getTitle());
+                }
+
+                runOnUiThread(() -> {
+                    setupViewPager();
+                    updateToolbar(currentIndex);
+                    viewPager.setCurrentItem(currentIndex, false);
+                });
+            } catch (Exception e) {
+                Log.e(TAG, "Async PDF Load Error", e);
             }
-            pdfRenderer = new PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY));
-        } catch (Exception e) {
-            Log.e(TAG, "PDF Load Error", e);
-        }
+        });
     }
 
     private void setupViewPager() {
@@ -92,8 +111,20 @@ public class BookDetailActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+                currentIndex = position;
                 updateToolbar(position);
+                saveProgressAsync(position);
                 showRandomAd();
+            }
+        });
+    }
+
+    private void saveProgressAsync(int position) {
+        executorService.execute(() -> {
+            try {
+                db.bookProgressDao().saveProgress(new BookProgress(position, System.currentTimeMillis()));
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to save reading progress", e);
             }
         });
     }
@@ -225,6 +256,7 @@ public class BookDetailActivity extends AppCompatActivity {
         if (bannerAdView != null) bannerAdView.destroy();
         if (fbInterstitialAd != null) fbInterstitialAd.destroy();
         if (pdfRenderer != null) pdfRenderer.close();
+        if (executorService != null) executorService.shutdown();
         super.onDestroy();
     }
 }

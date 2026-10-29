@@ -2,6 +2,7 @@ package com.beckytech.og_artiiwwankutaa5ffaa.adapter;
 
 import android.graphics.Bitmap;
 import android.graphics.pdf.PdfRenderer;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,14 @@ public class PdfPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private final List<Object> items = new ArrayList<>();
     private final PdfRenderer pdfRenderer;
+
+    // Enterprise LRU Bitmap Cache (20MB limit for smooth scrolling & no OOM)
+    private static final LruCache<Integer, Bitmap> bitmapCache = new LruCache<Integer, Bitmap>(20 * 1024 * 1024) {
+        @Override
+        protected int sizeOf(Integer key, Bitmap bitmap) {
+            return bitmap.getByteCount();
+        }
+    };
 
     public PdfPageAdapter(PdfRenderer pdfRenderer, int startPage, int endPage) {
         this.pdfRenderer = pdfRenderer;
@@ -72,12 +81,18 @@ public class PdfPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             imageView = itemView.findViewById(R.id.pdfPageView);
         }
         void bind(int pageIndex, PdfRenderer renderer) {
+            Bitmap cached = bitmapCache.get(pageIndex);
+            if (cached != null && !cached.isRecycled()) {
+                imageView.setImageBitmap(cached);
+                return;
+            }
             try {
                 PdfRenderer.Page page = renderer.openPage(pageIndex);
                 Bitmap bitmap = Bitmap.createBitmap(page.getWidth() * 2, page.getHeight() * 2, Bitmap.Config.ARGB_8888);
                 page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-                imageView.setImageBitmap(bitmap);
                 page.close();
+                bitmapCache.put(pageIndex, bitmap);
+                imageView.setImageBitmap(bitmap);
             } catch (Exception e) { e.printStackTrace(); }
         }
     }
